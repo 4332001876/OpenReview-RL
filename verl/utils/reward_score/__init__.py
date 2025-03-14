@@ -52,6 +52,11 @@ def _default_compute_test_score(data_source, solution_str, ground_truth, extra_i
     if data_source in ['openreview']:
         from . import openreview
         res = openreview.compute_test_score(solution_str, ground_truth)
+
+        if isinstance(res, (int, float, bool)):
+            return float(res)
+        else:
+            return float(res[0])
     else:
         return _default_compute_score(data_source, solution_str, ground_truth, extra_info)
 
