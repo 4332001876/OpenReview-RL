@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from verl import DataProto
-from verl.utils.reward_score import _default_compute_score
+from verl.utils.reward_score import _default_compute_score, _default_compute_test_score
 import torch
 
 
@@ -21,10 +21,13 @@ class NaiveRewardManager:
     """The reward manager.
     """
 
-    def __init__(self, tokenizer, num_examine, compute_score=None) -> None:
+    def __init__(self, tokenizer, num_examine, compute_score=None, test_mode=False) -> None:
         self.tokenizer = tokenizer
         self.num_examine = num_examine  # the number of batches of decoded responses to print to the console
-        self.compute_score = compute_score or _default_compute_score
+        if test_mode:
+            self.compute_score = compute_score or _default_compute_test_score
+        else:
+            self.compute_score = compute_score or _default_compute_score
 
     def verify(self, data):
         scores = []

@@ -51,14 +51,16 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
         max_possible_mae = 9  # Maximum possible MAE: (10-1)
 
         answer_reward = 1.0 - (mae / max_possible_mae) # 0 is the worst, 1 is the best
-        ANSWER_REWARD_FACTOR = 4.0
         
         # Convert MSE to a reward between 0 and 1 (higher is better)
-        return 1.0 + answer_reward * ANSWER_REWARD_FACTOR
+        return answer_reward
     except:
         return 0.0
-
+    
 def compute_score(predict_str: str, ground_truth: str) -> float:
+    return 1.0 * format_reward(predict_str) + 4.0 * answer_reward(predict_str, ground_truth)
+
+def compute_test_score(predict_str: str, ground_truth: str) -> float:
     """
     Compute the overall score based on the negative MAE (Mean Absolute Error).
     """

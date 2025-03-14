@@ -37,6 +37,9 @@ def _default_compute_score(data_source, solution_str, ground_truth, extra_info=N
     elif data_source in ['hiyouga/geometry3k']:
         from . import geo3k
         res = geo3k.compute_score(solution_str, ground_truth)
+    elif data_source in ['openreview']:
+        from . import openreview
+        res = openreview.compute_score(solution_str, ground_truth)
     else:
         raise NotImplementedError
 
@@ -44,3 +47,11 @@ def _default_compute_score(data_source, solution_str, ground_truth, extra_info=N
         return float(res)
     else:
         return float(res[0])
+
+def _default_compute_test_score(data_source, solution_str, ground_truth, extra_info=None):
+    if data_source in ['openreview']:
+        from . import openreview
+        res = openreview.compute_test_score(solution_str, ground_truth)
+    else:
+        return _default_compute_score(data_source, solution_str, ground_truth, extra_info)
+

@@ -20,7 +20,11 @@ Our approach follows a training methodology similar to Deepseek R1:
    - Rating accuracy (compared to ground truth scores)
    - Reasoning quality (evaluated through auxiliary models)
 
-## Project Structure
+## Code Structure and Implementation
+We implement the code following the structure of Logic-RL (https://github.com/Unakar/Logic-RL), which is a project that uses RL to improve reasoning tasks.
+
+The following directories and files have been added to the original `verl` codebase to support this project:
+
 ```
 OpenReview-RL/
 ├── examples/
@@ -65,4 +69,11 @@ Detailed experimental results and model comparisons will be provided in the asso
 
 ## License
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+
+## Acknowledgements
+- Logic-RL:
+  - GitHub: [https://github.com/Unakar/Logic-RL](https://github.com/Unakar/Logic-RL)
+  - Paper: [https://arxiv.org/abs/2502.14768](https://arxiv.org/abs/2502.14768)
+
 
