@@ -73,7 +73,11 @@ This project is licensed under the Apache License 2.0 - see the LICENSE file for
 
 ## Acknowledgements
 - Logic-RL:
-  - GitHub: [https://github.com/Unakar/Logic-RL](https://github.com/Unakar/Logic-RL)
-  - Paper: [https://arxiv.org/abs/2502.14768](https://arxiv.org/abs/2502.14768)
-
-
+  - GitHub: [Unakar/Logic-RL](https://github.com/Unakar/Logic-RL)
+  - Paper: [Logic-RL: Unleashing LLM Reasoning with Rule-Based Reinforcement Learning](https://arxiv.org/abs/2502.14768)
+- Verl:
+  - GitHub: [volcengine/verl](https://github.com/volcengine/verl)
+- TinyZero:
+  - GitHub: [Jiayi-Pan/TinyZero](https://github.com/Jiayi-Pan/TinyZero)
+- OpenReview Dataset:
+  - GitHub: [hughplay/ICLR2024-OpenReviewData](https://github.com/hughplay/ICLR2024-OpenReviewData)
