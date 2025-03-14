@@ -1,5 +1,6 @@
 # mkdir -p ./tmp
 # nohup bash ./scripts/openreview_rl.sh > ./tmp/openreview_rl.log 2>&1 &
+# ps -p [your_pid] -o pid,lstart,cmd
 
 set -x
 
@@ -12,7 +13,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_files=${DATA_PATH}/train.parquet \
     data.val_files=${DATA_PATH}/test.parquet \
     data.train_batch_size=32 \
-    data.max_prompt_length=512 \
+    data.max_prompt_length=4096 \
     data.max_response_length=4096 \
     actor_rollout_ref.model.path=$CHECKPOINT_PATH \
     actor_rollout_ref.actor.optim.lr=1e-6 \

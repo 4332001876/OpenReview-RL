@@ -42,12 +42,12 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
     """
     try:
         predicted_value = extract_answer(predict_str)
-        ground_truth_value = int(ground_truth)
+        ground_truth_value = float(ground_truth)
         
         if predicted_value == 0:  # Failed to extract answer
             return 0.0
             
-        mae = abs(predicted_value - ground_truth_value)
+        mae = float(abs(predicted_value - ground_truth_value))
         max_possible_mae = 9  # Maximum possible MAE: (10-1)
 
         answer_reward = 1.0 - (mae / max_possible_mae) # 0 is the worst, 1 is the best
@@ -67,5 +67,5 @@ def compute_test_score(predict_str: str, ground_truth: str) -> float:
     predicted_value = extract_answer(predict_str)
     if predicted_value == 0:
         predicted_value = 5 # when computing score, if the answer is not extracted, set it to 5 (the middle value)
-    ground_truth_value = int(ground_truth)
+    ground_truth_value = float(ground_truth)
     return - float(abs(predicted_value - ground_truth_value))
