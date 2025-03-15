@@ -17,11 +17,29 @@ import math
 
 def format_reward(predict_str: str) -> float:
     """
-    Check if the prediction follows the format <think>...</think><answer>X</answer>
-    where X is an integer between 1 and 10.
+    Check if the prediction follows the required format.
+    
+    Format requirements:
+    - Must start with <think> tag followed by any content and closed with </think>
+    - Must contain <answer>X</answer> where X is an integer from 1 to 10
+    - May optionally end with <|im_end|> token
+    - Whitespace between sections is allowed
+    
+    Args:
+        predict_str: The string to check
+        
+    Returns:
+        1.0 if the format is valid, 0.0 otherwise
     """
-    pattern = re.compile(r'^<think>[\s\S]*</think>[\s\n]*<answer>([1-9]|10)</answer>$', re.DOTALL)
-    match_result = re.fullmatch(pattern, predict_str)
+    # Compile regex pattern once at module level for better performance
+    THINK_PART = r'<think>[\s\S]*</think>'
+    ANSWER_PART = r'<answer>([1-9]|10)</answer>'
+    END_PART = r'(?:<\|im_end\|>)?'
+    VALID_FORMAT_PATTERN = re.compile(
+        rf'^[\s\n]*{THINK_PART}[\s\n]*{ANSWER_PART}[\s\n]*{END_PART}[\s\n]*$', 
+        re.DOTALL
+    )
+    match_result = re.fullmatch(VALID_FORMAT_PATTERN, predict_str)
     return 1.0 if match_result else 0.0
 
 def extract_answer(predict_str: str) -> int:
@@ -57,6 +75,9 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
 
         ground_truth_value_int = int(ground_truth_value + 0.5)
         answer_exact_reward = 1.0 if int(predicted_value) == ground_truth_value_int else 0.0
+
+        """
+        # use this when facing unbalance data
         answer_exact_reward_factor = {
             6: 0.05,
             5: 0.3,
@@ -64,6 +85,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
         }
         if ground_truth_value_int in answer_exact_reward_factor:
             answer_exact_reward *= answer_exact_reward_factor[ground_truth_value_int]
+        """
 
         return answer_mae_reward, answer_mse_reward, answer_exact_reward
     except:
@@ -72,7 +94,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
 def compute_score(predict_str: str, ground_truth: str) -> float:
     format_rew = format_reward(predict_str)
     ans_mae_rew, ans_mse_rew, ans_exact_rew = answer_reward(predict_str, ground_truth)
-    total_score = 1.0 * format_rew + 1.0 * ans_mae_rew + 8.0 * ans_exact_rew
+    total_score = 1.0 * format_rew + 3.0 * ans_mae_rew + 1.0 * ans_exact_rew
     
     # Print detailed information for each sample
     predicted_value = extract_answer(predict_str)

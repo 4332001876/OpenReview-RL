@@ -8,7 +8,7 @@ import argparse
 from sklearn.model_selection import train_test_split
 import datasets
 
-def load_openreview_data(data_path, abstract_col='abstract', rating_col='ratings_avg'):
+def load_openreview_data(data_path, abstract_col='abstract', rating_col='ratings_avg', normalize_rating=True):
     """
     Load OpenReview data from a CSV file
     
@@ -16,6 +16,7 @@ def load_openreview_data(data_path, abstract_col='abstract', rating_col='ratings
         data_path (str): Path to the CSV file
         abstract_col (str): Name of the abstract column
         rating_col (str): Name of the rating column
+        normalize_rating (bool): Whether to normalize ratings to 1-10 scale using quantiles
         
     Returns:
         pd.DataFrame: Dataframe with abstract and rating columns
@@ -37,6 +38,37 @@ def load_openreview_data(data_path, abstract_col='abstract', rating_col='ratings
     # Drop rows with missing values
     df = df.dropna()
     
+    # Normalize ratings to 1-10 scale based on quantiles if requested
+    if normalize_rating:
+        # Sort ratings and divide into 10 approximately equal groups
+        df['rating_original'] = df['rating'].copy()
+        
+        # Get sorted indices instead of just sorted values
+        sorted_indices = df['rating'].sort_values().index
+        n = len(sorted_indices)
+        group_size = n // 10
+        remainder = n % 10
+        
+        # Create a Series to map indices to new ratings
+        new_ratings = pd.Series(index=sorted_indices, dtype=int)
+        
+        start_idx = 0
+        for i in range(1, 11):
+            # Distribute remainder to ensure groups differ by at most 1 in size
+            current_size = group_size + (1 if i <= remainder else 0)
+            end_idx = start_idx + current_size
+            
+            if end_idx > start_idx:  # Only set ratings for non-empty groups
+                new_ratings.iloc[start_idx:end_idx] = i
+            
+            start_idx = end_idx
+        
+        # Apply the new ratings
+        df['rating'] = new_ratings
+        
+        print(f"Normalized ratings to scale 1-10. Original range: [{df['rating_original'].min():.2f}, {df['rating_original'].max():.2f}]")
+        print(f"Each rating group contains approximately {group_size}-{group_size+1} items")
+    
     return df
 
 if __name__ == '__main__':
@@ -48,11 +80,12 @@ if __name__ == '__main__':
     parser.add_argument('--rating_col', default='ratings_avg', help='Column name for ratings')
     parser.add_argument('--test_size', type=float, default=0.2, help='Fraction of data to use for testing')
     parser.add_argument('--random_state', type=int, default=42, help='Random seed for train/test split')
+    parser.add_argument('--original_rating', action='store_true', help='Use original ratings')
 
     args = parser.parse_args()
-
+    normalize_rating = not args.original_rating
     # Load the dataset
-    df = load_openreview_data(args.data_path, args.abstract_col, args.rating_col)
+    df = load_openreview_data(args.data_path, args.abstract_col, args.rating_col, normalize_rating)
     
     # Split the dataset into train and test
     train_df, test_df = train_test_split(
