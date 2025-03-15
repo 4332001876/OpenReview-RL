@@ -20,7 +20,7 @@ def format_reward(predict_str: str) -> float:
     Check if the prediction follows the format <think>...</think><answer>X</answer>
     where X is an integer between 1 and 10.
     """
-    pattern = re.compile(r'^<think>.*</think>[\s\n]*<answer>([1-9]|10)</answer>$', re.DOTALL)
+    pattern = re.compile(r'^<think>[\s\S]*</think>[\s\n]*<answer>([1-9]|10)</answer>$', re.DOTALL)
     match_result = re.fullmatch(pattern, predict_str)
     return 1.0 if match_result else 0.0
 
@@ -55,7 +55,15 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
         answer_mae_reward = 1.0 - (mae / max_possible_mae) # 0 is the worst, 1 is the best
         answer_mse_reward = 1.0 - (mae / max_possible_mse) # 0 is the worst, 1 is the best
 
-        answer_exact_reward = 1.0 if int(predicted_value) == int(ground_truth_value + 0.5) else 0.0
+        ground_truth_value_int = int(ground_truth_value + 0.5)
+        answer_exact_reward = 1.0 if int(predicted_value) == ground_truth_value_int else 0.0
+        answer_exact_reward_factor = {
+            6: 0.05,
+            5: 0.3,
+            7: 0.3
+        }
+        if ground_truth_value_int in answer_exact_reward_factor:
+            answer_exact_reward *= answer_exact_reward_factor[ground_truth_value_int]
 
         return answer_mae_reward, answer_mse_reward, answer_exact_reward
     except:
@@ -64,7 +72,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
 def compute_score(predict_str: str, ground_truth: str) -> float:
     format_rew = format_reward(predict_str)
     ans_mae_rew, ans_mse_rew, ans_exact_rew = answer_reward(predict_str, ground_truth)
-    total_score = 1.0 * format_rew + 1.0 * ans_mae_rew + 3.0 * ans_exact_rew
+    total_score = 1.0 * format_rew + 1.0 * ans_mae_rew + 8.0 * ans_exact_rew
     
     # Print detailed information for each sample
     predicted_value = extract_answer(predict_str)
