@@ -20,7 +20,7 @@ def format_reward(predict_str: str) -> float:
     Check if the prediction follows the format <think>...</think><answer>X</answer>
     where X is an integer between 1 and 10.
     """
-    pattern = re.compile(r'^<think>.*</think>\s*<answer>([1-9]|10)</answer>$', re.DOTALL)
+    pattern = re.compile(r'^<think>.*</think>[\s\n]*<answer>([1-9]|10)</answer>$', re.DOTALL)
     match_result = re.fullmatch(pattern, predict_str)
     return 1.0 if match_result else 0.0
 
@@ -49,18 +49,22 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
             
         mae = float(abs(predicted_value - ground_truth_value))
         max_possible_mae = 9  # Maximum possible MAE: (10-1)
+        max_possible_mse = 81  # Maximum possible MSE: (10-1)^2
 
-        answer_reward = 1.0 - (mae / max_possible_mae) # 0 is the worst, 1 is the best
-        
-        # Convert MSE to a reward between 0 and 1 (higher is better)
-        return answer_reward
+        # normalize reward between 0 and 1 (higher is better)
+        answer_mae_reward = 1.0 - (mae / max_possible_mae) # 0 is the worst, 1 is the best
+        answer_mse_reward = 1.0 - (mae / max_possible_mse) # 0 is the worst, 1 is the best
+
+        answer_exact_reward = 1.0 if int(predicted_value) == int(ground_truth_value) else 0.0
+
+        return answer_mae_reward, answer_mse_reward, answer_exact_reward
     except:
         return 0.0
     
 def compute_score(predict_str: str, ground_truth: str) -> float:
     format_rew = format_reward(predict_str)
-    ans_rew = answer_reward(predict_str, ground_truth)
-    total_score = 1.0 * format_rew + 4.0 * ans_rew
+    ans_mae_rew, ans_mse_rew, ans_exact_rew = answer_reward(predict_str, ground_truth)
+    total_score = 1.0 * format_rew + 2.0 * ans_mae_rew + 2.0 * ans_exact_rew
     
     # Print detailed information for each sample
     predicted_value = extract_answer(predict_str)
@@ -70,7 +74,7 @@ def compute_score(predict_str: str, ground_truth: str) -> float:
     print(f"  Extracted answer: {predicted_value}")
     print(f"  Ground truth: {ground_truth}")
     print(f"  Format reward: {format_rew}")
-    print(f"  Answer reward: {ans_rew}")
+    print(f"  Answer reward: mae {ans_mae_rew}, mse {ans_mse_rew}, exact {ans_exact_rew}")
     print(f"  Total score: {total_score}")
     print("-" * 50)
     
