@@ -59,7 +59,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
 
         return answer_mae_reward, answer_mse_reward, answer_exact_reward
     except:
-        return 0.0
+        return 0.0, 0.0, 0.0
     
 def compute_score(predict_str: str, ground_truth: str) -> float:
     format_rew = format_reward(predict_str)
