@@ -58,7 +58,23 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
         return 0.0
     
 def compute_score(predict_str: str, ground_truth: str) -> float:
-    return 1.0 * format_reward(predict_str) + 4.0 * answer_reward(predict_str, ground_truth)
+    format_rew = format_reward(predict_str)
+    ans_rew = answer_reward(predict_str, ground_truth)
+    total_score = 1.0 * format_rew + 4.0 * ans_rew
+    
+    # Print detailed information for each sample
+    predicted_value = extract_answer(predict_str)
+    print("-" * 50)
+    print(f"Sample Details:")
+    print(f"  Prediction string: {predict_str}")  # Show first 100 chars
+    print(f"  Extracted answer: {predicted_value}")
+    print(f"  Ground truth: {ground_truth}")
+    print(f"  Format reward: {format_rew}")
+    print(f"  Answer reward: {ans_rew}")
+    print(f"  Total score: {total_score}")
+    print("-" * 50)
+    
+    return total_score
 
 def compute_test_score(predict_str: str, ground_truth: str) -> float:
     """
@@ -68,4 +84,15 @@ def compute_test_score(predict_str: str, ground_truth: str) -> float:
     if predicted_value == 0:
         predicted_value = 5 # when computing score, if the answer is not extracted, set it to 5 (the middle value)
     ground_truth_value = float(ground_truth)
-    return - float(abs(predicted_value - ground_truth_value))
+    mae_score = - float(abs(predicted_value - ground_truth_value))
+    
+    # Print detailed information for test samples
+    print("-" * 50)
+    print(f"Test Sample Details:")
+    print(f"  Prediction string: {predict_str}")  # Show first 100 chars
+    print(f"  Extracted answer: {predicted_value}")
+    print(f"  Ground truth: {ground_truth}")
+    print(f"  Negative MAE score: {mae_score}")
+    print("-" * 50)
+    
+    return mae_score
