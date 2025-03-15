@@ -45,7 +45,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
         ground_truth_value = float(ground_truth)
         
         if predicted_value == 0:  # Failed to extract answer
-            return 0.0
+            return 0.0, 0.0, 0.0
             
         mae = float(abs(predicted_value - ground_truth_value))
         max_possible_mae = 9  # Maximum possible MAE: (10-1)
