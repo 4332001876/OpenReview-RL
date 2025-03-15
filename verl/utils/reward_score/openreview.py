@@ -55,7 +55,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
         answer_mae_reward = 1.0 - (mae / max_possible_mae) # 0 is the worst, 1 is the best
         answer_mse_reward = 1.0 - (mae / max_possible_mse) # 0 is the worst, 1 is the best
 
-        answer_exact_reward = 1.0 if int(predicted_value) == int(ground_truth_value) else 0.0
+        answer_exact_reward = 1.0 if int(predicted_value) == int(ground_truth_value + 0.5) else 0.0
 
         return answer_mae_reward, answer_mse_reward, answer_exact_reward
     except:
@@ -64,7 +64,7 @@ def answer_reward(predict_str: str, ground_truth: str) -> float:
 def compute_score(predict_str: str, ground_truth: str) -> float:
     format_rew = format_reward(predict_str)
     ans_mae_rew, ans_mse_rew, ans_exact_rew = answer_reward(predict_str, ground_truth)
-    total_score = 1.0 * format_rew + 2.0 * ans_mae_rew + 2.0 * ans_exact_rew
+    total_score = 1.0 * format_rew + 1.0 * ans_mae_rew + 3.0 * ans_exact_rew
     
     # Print detailed information for each sample
     predicted_value = extract_answer(predict_str)
